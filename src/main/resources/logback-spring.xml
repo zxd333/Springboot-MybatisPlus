@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    scan：当此属性设置为 true 时，配置文件如果发生改变，将会被重新加载，默认值为 true
+    scanPeriod：设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当 scan 为 true 时，此属性生效。默认的时间间隔为1分钟
+    debug：当此属性设置为 true 时，将打印出 logback 内部日志信息，实时查看 logback 运行状态。默认值为 false
+-->
+<configuration debug="false">
+
+    <!-- 日志保存位置 -->
+    <property name="log.path" value="D:/Projects/SpringBoot/demo_logs" />
+
+    <!-- 日志文件保留天数 -->
+    <property name="log.day" value="30" />
+
+    <!-- 日志文件最大容量 -->
+    <property name="log.size" value="10MB" />
+
+    <!-- 日志显示成彩色的 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+
+    <!-- 控制台日志输出-->
+    <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} 22 %clr(%4p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%1t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wex"/>
+
+    <!-- 日志文件日志输出-->
+    <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-40.40logger{39} [%M]: %m%n%wex"/>
+
+    <!--多环境的日志输出-->
+    <!--在 logback-spring.xml中使用 springProfile 节点来定义，方法如下：-->
+    <springProfile name="dev">
+        <property name="LOG_HOME" value="D:/Projects/SpringBoot/demo_logs" />
+    </springProfile>
+
+    <springProfile name="prod">
+        <property name="LOG_HOME" value="D:/Projects/SpringBoot/demo_logs" />
+    </springProfile>
+
+    <!-- 输出到控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <!--此日志appender是为开发使用，只配置最底级别，控制台输出的日志级别是大于或等于此级别的日志信息-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <!-- 设置debug,在控制台输出执行的sql -->
+            <level>DEBUG</level>
+        </filter>
+
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- debug 级别的日志 -->
+    <appender name="DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 日志文件的路径及文件名 -->
+        <file>${log.path}/debug.log</file>
+
+        <!-- 设置此日志文件只记录debug级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 过滤 debug，过滤条件就是下面两个标签 -->
+            <level>DEBUG</level>
+            <!-- 匹配到 debug 级别的日志就允许 -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 没有匹配到 debug 级别的日志就禁止 -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <!--日志文件输出格式-->
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <!-- 日志文件输出的文件名 -->
+            <fileNamePattern>${LOG_HOME}/info.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- 日志文件保留天数 -->
+            <MaxHistory>${log.day}</MaxHistory>
+        </rollingPolicy>
+
+        <!-- 日志文件最大的大小 -->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>${log.size}</MaxFileSize>
+        </triggeringPolicy>
+
+    </appender>
+
+    <!-- info 级别的日志 -->
+    <appender name="INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 正在记录的日志文件的路径及文件名 -->
+        <file>${log.path}/info.log</file>
+
+        <!-- 设置此日志文件只记录info级别的 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <!--日志文件输出格式-->
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <!--日志文件输出的文件名-->
+            <fileNamePattern>${LOG_HOME}/info.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!--日志文件保留天数-->
+            <MaxHistory>${log.day}</MaxHistory>
+        </rollingPolicy>
+
+        <!--日志文件最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>${log.size}</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <!-- warn 级别的日志 -->
+    <appender name="WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 正在记录的日志文件的路径及文件名，正在的 -->
+        <file>${log.path}/warn.log</file>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/warn.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>${log.day}</MaxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- error 级别的日志 -->
+    <appender name="ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 正在记录的日志文件的路径及文件名，正在的 -->
+        <file>${log.path}/error.log</file>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>${log.day}</MaxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 控制台输出 sql -->
+    <logger name="org.demo.mapper" level="DEBUG"></logger>
+
+    <!-- 系统日志输出级别，ref 的名字对应上面 appender 标签的 name 名称-->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="INFO"/>
+        <appender-ref ref="WARN"/>
+        <appender-ref ref="ERROR"/>
+        <appender-ref ref="DEBUG"/>
+    </root>
+
+</configuration>
